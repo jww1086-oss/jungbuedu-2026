@@ -57,7 +57,8 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { studentName, quizId, answers } = body;
+    const { studentName: rawName, quizId, answers } = body;
+    const studentName = rawName.trim();
 
     // 퀴즈 정답 검증 로직
     const quizContents = fs.readFileSync(quizzesPath, 'utf8');
@@ -98,6 +99,15 @@ export async function POST(request: Request) {
         );
       `;
 
+      // 중복 응시 방지 체크
+      const { rowCount } = await db.sql`
+        SELECT 1 FROM results 
+        WHERE quiz_id = ${quizId} AND student_name = ${studentName}
+      `;
+      if (rowCount && rowCount > 0) {
+        return NextResponse.json({ error: '이미 해당 과목의 평가를 완료하셨습니다. (중복 제출 불가)' }, { status: 400 });
+      }
+
       // Vercel Postgres에 Insert
       const detailsJson = JSON.stringify(details);
       await db.sql`
@@ -116,6 +126,12 @@ export async function POST(request: Request) {
       let results = [];
       if (fs.existsSync(resultsPath)) {
         results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+      }
+      
+      // 중복 응시 방지 체크
+      const isDuplicate = results.some((r: any) => String(r.quizId) === String(quizId) && r.studentName === studentName);
+      if (isDuplicate) {
+        return NextResponse.json({ error: '이미 해당 과목의 평가를 완료하셨습니다. (중복 제출 불가)' }, { status: 400 });
       }
       
       const newResult = {
