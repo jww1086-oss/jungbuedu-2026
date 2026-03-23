@@ -28,24 +28,12 @@ export default async function Home() {
           원하시는 평가 과목을 선택하여 응시해 주세요. (현재 {quizzes.length}과목)
         </p>
 
-        <div className="grid gap-6 sm:grid-cols-2 mb-10 text-left">
+        <div className="grid gap-6 sm:grid-cols-2 mb-10 text-center">
           {quizzes.map((quiz) => (
-            <Link key={quiz.id} href={`/quiz/${quiz.id}`} className="group relative flex flex-col p-8 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-400 hover:-translate-y-1 transition-all duration-300">
-              <div className="absolute top-8 right-8 w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                &rarr;
-              </div>
-              <span className="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg mb-4 w-max">
-                과목 {quiz.id}
-              </span>
-              <h3 className="text-2xl font-bold text-slate-800 mb-3 group-hover:text-indigo-600 transition-colors">
+            <Link key={quiz.id} href={`/quiz/${quiz.id}`} className="group flex items-center justify-center py-10 px-6 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-500 hover:-translate-y-1 transition-all duration-300">
+              <h3 className="text-3xl font-black text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors">
                 {quiz.title}
               </h3>
-              <p className="text-slate-500 mb-6 flex-grow line-clamp-2">
-                {quiz.description}
-              </p>
-              <div className="text-indigo-600 font-bold border-t pt-4 mt-auto">
-                이 퀴즈 풀기
-              </div>
             </Link>
           ))}
         </div>
