@@ -14,6 +14,7 @@ export default function QuizPage() {
   const [step, setStep] = useState<'intro' | 'quiz' | 'result'>('intro');
   const [resultData, setResultData] = useState<any>(null);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -43,27 +44,35 @@ export default function QuizPage() {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     if (answers.includes(-1)) {
       alert('모든 문항에 답변해주세요.');
       return;
     }
     
-    const res = await fetch('/api/results', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        studentName,
-        quizId: quiz.id,
-        answers
-      })
-    });
-    const data = await res.json();
-    if (!res.ok || data.error) {
-      alert(`오류가 발생했습니다: ${data.error || '제출 실패'}`);
-      return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentName,
+          quizId: quiz.id,
+          answers
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        alert(`오류가 발생했습니다: ${data.error || '제출 실패'}`);
+        setIsSubmitting(false);
+        return;
+      }
+      setResultData(data);
+      setStep('result');
+    } catch (e) {
+      alert('통신 오류가 발생했습니다.');
+      setIsSubmitting(false);
     }
-    setResultData(data);
-    setStep('result');
   };
 
   if (!quiz) return <div className="p-12 text-center text-slate-500">불러오는 중...</div>;
@@ -136,9 +145,10 @@ export default function QuizPage() {
 
           <button 
             onClick={handleSubmit}
-            className="w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-xl shadow-indigo-500/20 text-white font-bold text-lg rounded-xl transition-all"
+            disabled={isSubmitting}
+            className={`w-full py-5 text-white font-bold text-lg rounded-xl transition-all ${isSubmitting ? 'bg-indigo-300 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-xl shadow-indigo-500/20'}`}
           >
-            최종 제출하기
+            {isSubmitting ? '채점 및 저장 중...' : '최종 제출하기'}
           </button>
         </div>
       )}
