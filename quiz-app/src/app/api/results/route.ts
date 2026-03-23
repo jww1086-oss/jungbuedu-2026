@@ -84,6 +84,20 @@ export async function POST(request: Request) {
 
     if (hasDbConfig) {
       const db = createPool({ connectionString: dbUrl });
+      
+      // 혹시 관리자 페이지 접속 전이라 테이블이 없을 수 있으므로 강력 방어
+      await db.sql`
+        CREATE TABLE IF NOT EXISTS results (
+          id SERIAL PRIMARY KEY,
+          quiz_id INTEGER,
+          student_name VARCHAR(255),
+          score INTEGER,
+          total INTEGER,
+          details JSONB,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `;
+
       // Vercel Postgres에 Insert
       const detailsJson = JSON.stringify(details);
       await db.sql`
