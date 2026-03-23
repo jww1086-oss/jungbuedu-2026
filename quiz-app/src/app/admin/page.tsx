@@ -4,17 +4,58 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/results')
-      .then(res => res.json())
-      .then(data => {
-        setResults(data.reverse()); // 최신순
-        setLoading(false);
-      });
-  }, []);
+    if (isAuthenticated) {
+      fetch('/api/results')
+        .then(res => res.json())
+        .then(data => {
+          setResults(data.reverse()); // 최신순
+          setLoading(false);
+        });
+    }
+  }, [isAuthenticated]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === '3151') {
+      setIsAuthenticated(true);
+    } else {
+      setPasswordError('비밀번호가 올바르지 않습니다.');
+      setPasswordInput('');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
+        <form onSubmit={handleLogin} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-sm w-full text-center">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">🔒</span>
+          </div>
+          <h2 className="text-xl font-bold mb-6 text-slate-800">관리자 인증</h2>
+          <input
+            type="password"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            className="w-full px-4 py-3 mb-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-center tracking-[0.5em] text-lg"
+            placeholder="****"
+            maxLength={4}
+            autoFocus
+          />
+          {passwordError && <p className="text-red-500 text-sm mb-4">{passwordError}</p>}
+          <button type="submit" className="w-full bg-slate-900 text-white py-3 mt-4 rounded-xl font-bold hover:bg-slate-800 transition">
+            접속하기
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
