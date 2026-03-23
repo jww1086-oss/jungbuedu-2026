@@ -88,7 +88,7 @@ export async function POST(request: Request) {
       const detailsJson = JSON.stringify(details);
       await db.sql`
         INSERT INTO results (quiz_id, student_name, score, total, details)
-        VALUES (${quizId}, ${studentName}, ${score}, ${total}, ${detailsJson})
+        VALUES (${quizId}, ${studentName}, ${score}, ${total}, ${detailsJson}::jsonb)
       `;
       return NextResponse.json({ 
         success: true, 

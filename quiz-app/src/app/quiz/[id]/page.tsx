@@ -58,6 +58,10 @@ export default function QuizPage() {
       })
     });
     const data = await res.json();
+    if (!res.ok || data.error) {
+      alert(`오류가 발생했습니다: ${data.error || '제출 실패'}`);
+      return;
+    }
     setResultData(data);
     setStep('result');
   };
