@@ -22,7 +22,7 @@ export default async function Home() {
         </div>
         
         <h1 className="text-3xl sm:text-4xl font-black text-slate-800 tracking-tight mb-4">
-          안전관리감독자 역량강화 평가
+          관리감독자 역량강화 평가
         </h1>
         <p className="text-slate-500 text-lg mb-10 leading-relaxed">
           원하시는 평가 과목을 선택하여 응시해 주세요. (현재 {quizzes.length}과목)
