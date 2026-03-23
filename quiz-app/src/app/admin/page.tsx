@@ -9,6 +9,7 @@ export default function AdminPage() {
   const [passwordError, setPasswordError] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedQuizId, setSelectedQuizId] = useState<number | 'all'>('all');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -86,6 +87,9 @@ export default function AdminPage() {
     );
   }
 
+  const uniqueQuizIds = Array.from(new Set(results.map(r => r.quizId))).sort((a: any, b: any) => a - b);
+  const filteredResults = selectedQuizId === 'all' ? results : results.filter(r => r.quizId === selectedQuizId);
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
       <div className="flex items-center justify-between mb-8">
@@ -94,6 +98,19 @@ export default function AdminPage() {
           <p className="text-slate-500 mt-2">교육생들의 퀴즈 참여 결과를 실시간으로 확인합니다.</p>
         </div>
         <div className="flex gap-4">
+          <div className="bg-white flex items-center px-4 py-2 rounded-xl border shadow-sm">
+            <label className="text-sm font-semibold text-slate-600 mr-3">과목 필터</label>
+            <select 
+              className="bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-lg focus:ring-indigo-500 py-1.5 px-3 font-medium outline-none cursor-pointer"
+              value={selectedQuizId}
+              onChange={(e) => setSelectedQuizId(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+            >
+              <option value="all">전체 과목 보기</option>
+              {uniqueQuizIds.map(id => (
+                <option key={id} value={id}>과목 {id} 결과만</option>
+              ))}
+            </select>
+          </div>
           <button 
             onClick={handleReset}
             className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-4 py-3 rounded-xl border border-red-200 shadow-sm text-sm font-bold transition-colors"
@@ -101,8 +118,8 @@ export default function AdminPage() {
             전체 데이터 초기화
           </button>
           <div className="bg-white px-6 py-3 rounded-xl border shadow-sm text-center">
-            <span className="block text-sm text-slate-500 mb-1">총 응시자</span>
-            <span className="text-2xl font-bold text-indigo-600">{results.length}명</span>
+            <span className="block text-sm text-slate-500 mb-1">응시 건수</span>
+            <span className="text-2xl font-bold text-indigo-600">{filteredResults.length}건</span>
           </div>
         </div>
       </div>
@@ -111,6 +128,7 @@ export default function AdminPage() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200 text-sm font-semibold text-slate-600">
+              <th className="px-6 py-4">응시 과목</th>
               <th className="px-6 py-4">응시자 이름</th>
               <th className="px-6 py-4">최종 점수</th>
               <th className="px-6 py-4">정답 수</th>
@@ -121,15 +139,20 @@ export default function AdminPage() {
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr>
-                <td colSpan={4} className="px-6 py-12 text-center text-slate-400">데이터를 불러오는 중입니다...</td>
+                <td colSpan={6} className="px-6 py-12 text-center text-slate-400">데이터를 불러오는 중입니다...</td>
               </tr>
-            ) : results.length === 0 ? (
+            ) : filteredResults.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-12 text-center text-slate-400">아직 제출된 결과가 없습니다.</td>
+                <td colSpan={6} className="px-6 py-12 text-center text-slate-400">해당 과목에 제출된 결과가 없습니다.</td>
               </tr>
             ) : (
-              results.map((r) => (
+              filteredResults.map((r) => (
                 <tr key={r.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-4">
+                    <span className="px-3 py-1 bg-indigo-50 text-indigo-700 font-bold text-xs rounded-lg">
+                      과목 {r.quizId}
+                    </span>
+                  </td>
                   <td className="px-6 py-4 font-medium text-slate-900">{r.studentName}</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
