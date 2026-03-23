@@ -31,6 +31,35 @@ export default function AdminPage() {
     }
   };
 
+  const handleDelete = async (id: number | string) => {
+    if (!confirm('이 응시자의 결과를 삭제하시겠습니까?')) return;
+    try {
+      const res = await fetch(`/api/results?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setResults(results.filter(r => r.id !== id));
+      } else {
+        alert('삭제 중 오류가 발생했습니다.');
+      }
+    } catch (e) {
+      alert('통신 오류가 발생했습니다.');
+    }
+  };
+
+  const handleReset = async () => {
+    if (!confirm('경고: 모든 학생들의 시험 결과를 완전히 삭제하시겠습니까?\n이 작업은 절대 되돌릴 수 없습니다!')) return;
+    try {
+      const res = await fetch(`/api/results?action=reset`, { method: 'DELETE' });
+      if (res.ok) {
+        setResults([]);
+        alert('모든 데이터가 초기화되었습니다.');
+      } else {
+        alert('초기화 중 오류가 발생했습니다.');
+      }
+    } catch (e) {
+      alert('통신 오류가 발생했습니다.');
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
@@ -65,6 +94,12 @@ export default function AdminPage() {
           <p className="text-slate-500 mt-2">교육생들의 퀴즈 참여 결과를 실시간으로 확인합니다.</p>
         </div>
         <div className="flex gap-4">
+          <button 
+            onClick={handleReset}
+            className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-4 py-3 rounded-xl border border-red-200 shadow-sm text-sm font-bold transition-colors"
+          >
+            전체 데이터 초기화
+          </button>
           <div className="bg-white px-6 py-3 rounded-xl border shadow-sm text-center">
             <span className="block text-sm text-slate-500 mb-1">총 응시자</span>
             <span className="text-2xl font-bold text-indigo-600">{results.length}명</span>
@@ -80,6 +115,7 @@ export default function AdminPage() {
               <th className="px-6 py-4">최종 점수</th>
               <th className="px-6 py-4">정답 수</th>
               <th className="px-6 py-4">제출 일시</th>
+              <th className="px-6 py-4 text-center">관리</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -106,6 +142,14 @@ export default function AdminPage() {
                   <td className="px-6 py-4 text-slate-600 text-sm">{r.score} / {r.total} 문항</td>
                   <td className="px-6 py-4 text-slate-500 text-sm">
                     {new Date(r.createdAt).toLocaleString('ko-KR')}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <button 
+                      onClick={() => handleDelete(r.id)} 
+                      className="text-red-500 hover:text-red-700 text-sm font-semibold px-3 py-1 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-100 hover:border-red-300"
+                    >
+                      삭제
+                    </button>
                   </td>
                 </tr>
               ))

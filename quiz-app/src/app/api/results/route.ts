@@ -138,3 +138,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to save result' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    const action = searchParams.get('action');
+
+    if (hasDbConfig) {
+      const db = createPool({ connectionString: dbUrl });
+      if (action === 'reset') {
+        await db.sql`TRUNCATE TABLE results RESTART IDENTITY`;
+        return NextResponse.json({ success: true, message: 'All results deleted' });
+      } else if (id) {
+        await db.sql`DELETE FROM results WHERE id = ${id}`;
+        return NextResponse.json({ success: true, id });
+      }
+    } else {
+      if (fs.existsSync(resultsPath)) {
+        if (action === 'reset') {
+          fs.writeFileSync(resultsPath, JSON.stringify([], null, 2), 'utf8');
+          return NextResponse.json({ success: true, message: 'All results deleted' });
+        } else if (id) {
+          const contents = fs.readFileSync(resultsPath, 'utf8');
+          let resultsList = JSON.parse(contents);
+          resultsList = resultsList.filter((r: any) => r.id !== Number(id) && r.id !== id);
+          fs.writeFileSync(resultsPath, JSON.stringify(resultsList, null, 2), 'utf8');
+          return NextResponse.json({ success: true, id });
+        }
+      }
+    }
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  } catch (err) {
+    console.error('DB DELETE Error:', err);
+    return NextResponse.json({ error: 'Failed to delete results' }, { status: 500 });
+  }
+}
