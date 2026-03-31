@@ -187,6 +187,20 @@ export default function AdminPage() {
     return { ...course, avg: avg.toFixed(1), count: validRatings.length };
   });
 
+  // 과목별/문항별 정답률 통계 계산 (현재 필터링된 결과 기준)
+  const questionStatsByQuiz = filteredResults.reduce((acc, r) => {
+    if (!acc[r.quizId]) acc[r.quizId] = {};
+    if (r.details && Array.isArray(r.details)) {
+      r.details.forEach((d: any, index: number) => {
+        const qNum = index + 1;
+        if (!acc[r.quizId][qNum]) acc[r.quizId][qNum] = { correct: 0, total: 0 };
+        acc[r.quizId][qNum].total += 1;
+        if (d.isCorrect) acc[r.quizId][qNum].correct += 1;
+      });
+    }
+    return acc;
+  }, {} as Record<string, Record<number, { correct: number, total: number }>>);
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
@@ -255,6 +269,39 @@ export default function AdminPage() {
               </div>
             </div>
           </div>
+
+          {/* 과목/문항별 정답률 분석 (조건부 렌더링) */}
+          {Object.keys(questionStatsByQuiz).length > 0 && (
+            <div className="mb-6 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <h3 className="text-base sm:text-lg font-bold text-slate-800 mb-5 flex items-center">
+                <span className="w-2 h-6 bg-indigo-500 rounded-full mr-3"></span>
+                과목 필터링 기반 문항별 정답률
+              </h3>
+              <div className="space-y-6">
+                {Object.entries(questionStatsByQuiz).map(([quizId, stats]) => (
+                  <div key={quizId} className="border-t border-slate-100 pt-4 first:border-0 first:pt-0">
+                    <h4 className="font-extrabold text-slate-700 mb-3 bg-slate-50 px-3 py-1.5 rounded-lg inline-block text-[13px] border border-slate-200 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+                      과목 {quizId}
+                    </h4>
+                    <div className="grid grid-cols-5 md:grid-cols-10 gap-1.5 sm:gap-3">
+                      {Object.entries(stats as any).map(([qNum, data]: [string, any]) => {
+                        const rate = data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
+                        return (
+                          <div key={qNum} className="bg-white border border-slate-200 text-center py-2 sm:py-3 rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-center">
+                            <div className="text-[10px] sm:text-[11px] font-bold text-slate-400 mb-0.5 sm:mb-1">{qNum}번</div>
+                            <div className={`text-sm sm:text-xl font-black tracking-tighter ${rate >= 80 ? 'text-emerald-500' : rate >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
+                              {rate}%
+                            </div>
+                            <div className="text-[9px] sm:text-[10px] text-slate-400 mt-0.5 tracking-tighter font-medium">{data.correct}/{data.total}명</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* 데스크탑 뷰 - 테이블 형식 */}
           <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
