@@ -4,10 +4,12 @@ import { createPool } from '@vercel/postgres';
 import fs from 'fs';
 import path from 'path';
 
-const surveysPath = path.join(process.cwd(), 'data', 'surveys.json');
+const dataDir = process.env.DATA_DIR || path.join(process.cwd(), 'data');
+const surveysPath = path.join(dataDir, 'surveys.json');
 
 const dbUrl = process.env.POSTGRES_URL || process.env.DATABASE_URL;
-const hasDbConfig = !!dbUrl;
+// 로컬 dev.db 등의 설정을 무시하고 실제 Postgres 연결일 때만 DB 모드 활성화하도록 조건 강화
+const hasDbConfig = !!dbUrl && dbUrl.startsWith('postgres');
 
 export async function GET() {
   try {
@@ -39,7 +41,9 @@ export async function GET() {
       if (!fs.existsSync(surveysPath)) return NextResponse.json([]);
       const fileContents = fs.readFileSync(surveysPath, 'utf8');
       const surveys = JSON.parse(fileContents);
-      return NextResponse.json(surveys);
+      return NextResponse.json(surveys, {
+        headers: { 'Cache-Control': 'no-store, max-age=0' }
+      });
     }
   } catch (err) {
     console.error('Survey GET Error:', err);
@@ -119,22 +123,41 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ success: true, id });
       }
     } else {
-      if (fs.existsSync(surveysPath)) {
-        if (action === 'reset') {
-          fs.writeFileSync(surveysPath, JSON.stringify([], null, 2), 'utf8');
-          return NextResponse.json({ success: true, message: 'All surveys deleted' });
-        } else if (id) {
-          const contents = fs.readFileSync(surveysPath, 'utf8');
-          let surveysList = JSON.parse(contents);
-          surveysList = surveysList.filter((s: any) => s.id !== Number(id) && s.id !== id);
-          fs.writeFileSync(surveysPath, JSON.stringify(surveysList, null, 2), 'utf8');
-          return NextResponse.json({ success: true, id });
+      // 로컬 파일 기반 삭제/초기화 (Fallback)
+      if (action === 'reset') {
+        fs.writeFileSync(surveysPath, JSON.stringify([], null, 2), 'utf8');
+        console.log('Local reset success (surveys)');
+        return NextResponse.json({ success: true, message: 'All surveys deleted' });
+      } else if (id) {
+        if (!fs.existsSync(surveysPath)) return NextResponse.json({ success: true, id });
+
+        const contents = fs.readFileSync(surveysPath, 'utf8');
+        let surveysList = [];
+        try {
+          surveysList = JSON.parse(contents);
+        } catch (e) {
+          console.error('JSON parse error (surveys), resetting surveys file');
+          surveysList = [];
         }
+
+        const initialLength = surveysList.length;
+        // id가 숫자형 또는 문자열형일 수 있으므로 두 가지 경우 모두 체크
+        surveysList = surveysList.filter((s: any) => String(s.id) !== String(id));
+        
+        fs.writeFileSync(surveysPath, JSON.stringify(surveysList, null, 2), 'utf8');
+        console.log(`Deleted survey ${id}. Count: ${initialLength} -> ${surveysList.length}`);
+        return NextResponse.json({ success: true, id });
       }
     }
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   } catch (err) {
     console.error('Survey DELETE Error:', err);
-    return NextResponse.json({ error: 'Failed to delete surveys' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to delete surveys', 
+      details: err instanceof Error ? err.message : String(err) 
+    }, { 
+      status: 500,
+      headers: { 'Cache-Control': 'no-store, max-age=0' }
+    });
   }
 }

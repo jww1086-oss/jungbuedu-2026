@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {
+  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -12,6 +13,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'quiz' | 'survey'>('quiz');
   const [selectedQuizId, setSelectedQuizId] = useState<number | 'all'>('all');
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'result' | 'survey' | 'resetResults' | 'resetSurveys', id?: number | string } | null>(null);
 
   const courses = [
     { id: "c1", name: "발전산업 안전대책" },
@@ -28,9 +30,10 @@ export default function AdminPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
+      const timestamp = new Date().getTime();
       const [resResults, resSurveys] = await Promise.all([
-        fetch('/api/results'),
-        fetch('/api/survey')
+        fetch(`/api/results?t=${timestamp}`, { cache: 'no-store' }),
+        fetch(`/api/survey?t=${timestamp}`, { cache: 'no-store' })
       ]);
       const dataResults = await resResults.json();
       const dataSurveys = await resSurveys.json();
@@ -40,6 +43,7 @@ export default function AdminPage() {
       console.error("Fetch error:", e);
     } finally {
       setLoading(false);
+      router.refresh();
     }
   };
 
@@ -59,54 +63,78 @@ export default function AdminPage() {
     }
   };
 
-  const handleDeleteResult = async (id: number | string) => {
-    if (!confirm('이 응시자의 결과를 삭제하시겠습니까?')) return;
+  const executeDeleteResult = async (id: number | string) => {
     try {
       const res = await fetch(`/api/results?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
-        setResults(results.filter(r => r.id !== id));
+        setResults((prev) => prev.filter(r => String(r.id) !== String(id)));
       } else {
-        alert('삭제 중 오류가 발생했습니다.');
+        const errorData = await res.json().catch(() => ({ error: '알 수 없는 서버 오류' }));
+        alert(`삭제 실패: ${errorData.error || res.statusText}`);
       }
     } catch (e) {
-      alert('통신 오류가 발생했습니다.');
+      alert('통신 오류가 발생했습니다. 네트워크 상태를 확인해 주세요.');
     }
   };
 
-  const handleDeleteSurvey = async (id: number | string) => {
-    if (!confirm('이 설문 결과를 삭제하시겠습니까?')) return;
+  const executeDeleteSurvey = async (id: number | string) => {
     try {
       const res = await fetch(`/api/survey?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
-        setSurveys(surveys.filter(s => s.id !== id));
+        setSurveys((prev) => prev.filter(s => String(s.id) !== String(id)));
       } else {
-        alert('삭제 중 오류가 발생했습니다.');
+        const errorData = await res.json().catch(() => ({ error: '알 수 없는 서버 오류' }));
+        alert(`삭제 실패: ${errorData.error || res.statusText}`);
       }
     } catch (e) {
-      alert('통신 오류가 발생했습니다.');
+      alert('통신 오류가 발생했습니다. 네트워크 상태를 확인해 주세요.');
     }
   };
 
-  const handleResetResults = async () => {
-    if (!confirm('경고: 모든 학생들의 시험 결과를 완전히 삭제하시겠습니까?\n이 작업은 절대 되돌릴 수 없습니다!')) return;
+  const executeResetResults = async () => {
     try {
       const res = await fetch(`/api/results?action=reset`, { method: 'DELETE' });
       if (res.ok) {
         setResults([]);
         alert('모든 데이터가 초기화되었습니다.');
+      } else {
+        const errorData = await res.json().catch(() => ({ error: '알 수 없는 서버 오류' }));
+        alert(`초기화 실패: ${errorData.error || res.statusText}`);
       }
-    } catch (e) {}
+    } catch (e) {
+      alert('초기화 중 통신 오류가 발생했습니다.');
+    }
   };
 
-  const handleResetSurveys = async () => {
-    if (!confirm('경고: 모든 만족도 조사 결과를 완전히 삭제하시겠습니까?\n이 작업은 절대 되돌릴 수 없습니다!')) return;
+  const executeResetSurveys = async () => {
     try {
       const res = await fetch(`/api/survey?action=reset`, { method: 'DELETE' });
       if (res.ok) {
         setSurveys([]);
         alert('모든 데이터가 초기화되었습니다.');
+      } else {
+        const errorData = await res.json().catch(() => ({ error: '알 수 없는 서버 오류' }));
+        alert(`초기화 실패: ${errorData.error || res.statusText}`);
       }
-    } catch (e) {}
+    } catch (e) {
+      alert('초기화 중 통신 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDeleteResult = (id: number | string) => setDeleteTarget({ type: 'result', id });
+  const handleDeleteSurvey = (id: number | string) => setDeleteTarget({ type: 'survey', id });
+  const handleResetResults = () => setDeleteTarget({ type: 'resetResults' });
+  const handleResetSurveys = () => setDeleteTarget({ type: 'resetSurveys' });
+
+  const confirmAction = () => {
+    if (!deleteTarget) return;
+    switch (deleteTarget.type) {
+      case 'result': executeDeleteResult(deleteTarget.id!); break;
+      case 'survey': executeDeleteSurvey(deleteTarget.id!); break;
+      case 'resetResults': executeResetResults(); break;
+      case 'resetSurveys': executeResetSurveys(); break;
+    }
+    setDeleteTarget(null);
   };
 
   if (!isAuthenticated) {
@@ -321,6 +349,39 @@ export default function AdminPage() {
             </div>
           </div>
         </>
+      )}
+      
+      {/* 안전한 커스텀 모달 (브라우저 차단 우회) */}
+      {deleteTarget && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 border border-slate-100">
+            <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mb-4">
+              <span className="text-xl">⚠️</span>
+            </div>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">
+              {deleteTarget.type.startsWith('reset') ? '정말 전부 초기화할까요?' : '정말 삭제하시겠습니까?'}
+            </h3>
+            <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+              {deleteTarget.type.startsWith('reset') 
+                ? '경고: 이 작업은 되돌릴 수 없으며 모든 데이터가 영구적으로 삭제됩니다.' 
+                : '이 데이터를 표에서 영구적으로 삭제합니다.'}
+            </p>
+            <div className="flex gap-3 w-full">
+              <button 
+                onClick={() => setDeleteTarget(null)}
+                className="flex-1 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors"
+              >
+                취소
+              </button>
+              <button 
+                onClick={confirmAction}
+                className="flex-1 py-2.5 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 shadow-md shadow-red-200 transition-colors"
+              >
+                삭제하기
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

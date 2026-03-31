@@ -173,8 +173,8 @@ export default function SurveyPage() {
 
               {/* Q2 */}
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                <p className="font-bold text-slate-800 mb-4 text-lg">Q2. 가장 도움이 되었거나 기억에 남는 교육 과정은 무엇입니까? <span className="text-emerald-600 text-sm font-normal">(자유롭게 작성)</span></p>
-                <textarea required name="q2" rows={3} placeholder="여기에 의견을 작성해 주세요..." className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow resize-none"></textarea>
+                <p className="font-bold text-slate-800 mb-4 text-lg">Q2. 가장 도움이 되었거나 기억에 남는 교육 과정은 무엇입니까? <span className="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md text-sm font-bold ml-2">선택</span></p>
+                <textarea name="q2" rows={3} placeholder="여기에 의견을 작성해 주세요..." className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow resize-none"></textarea>
               </div>
 
               {/* Q3 */}
@@ -205,8 +205,8 @@ export default function SurveyPage() {
 
               {/* Q5 */}
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                <p className="font-bold text-slate-800 mb-4 text-lg">Q5. 향후 교육에 추가되기를 희망하는 주제나 개선사항이 있다면 작성해 주십시오.</p>
-                <textarea required name="q5" rows={4} placeholder="여기에 자유롭게 의견을 작성해 주세요..." className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow resize-none"></textarea>
+                <p className="font-bold text-slate-800 mb-4 text-lg">Q5. 향후 교육에 추가되기를 희망하는 주제나 개선사항이 있다면 작성해 주십시오. <span className="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md text-sm font-bold ml-2">선택</span></p>
+                <textarea name="q5" rows={4} placeholder="여기에 자유롭게 의견을 작성해 주세요..." className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow resize-none"></textarea>
               </div>
 
             </div>

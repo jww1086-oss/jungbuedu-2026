@@ -19,44 +19,80 @@ export default function HomePageClient({ quizzes }: { quizzes: Quiz[] }) {
           </svg>
         </div>
         
-        <h1 className="text-2xl sm:text-4xl font-black text-slate-800 tracking-tight mb-4 leading-tight break-keep">
+        <h1 className="text-2xl sm:text-4xl font-black text-slate-800 tracking-tight mb-8 leading-tight break-keep">
           관리감독자 역량강화 평가
         </h1>
-        <p className="text-slate-500 text-sm sm:text-lg mb-8 sm:mb-10 leading-relaxed break-keep">
-          원하시는 평가 과목을 선택하여 응시해 주세요.<br className="sm:hidden" /> (현재 {quizzes.length}과목)
-        </p>
 
-        {/* 설문조사 배너 - 완전한 반응형 적용 */}
-        <div className="mb-8 sm:mb-10 text-left text-balance">
-          <Link href="/survey" className="block w-full rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-500 to-teal-500 p-5 sm:px-10 sm:py-8 text-white shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 -mt-8 -mr-8 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-            <div className="relative z-10 flex items-center justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-3xl font-black mb-1 flex items-center leading-tight break-keep">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 opacity-90 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                  참여하기: 교육 만족도 조사
+        {/* 배너 섹션 (세로로 동일한 크기로 배열) */}
+        <div className="flex flex-col gap-4 sm:gap-6 mb-8 sm:mb-10 text-left">
+          
+          {/* 시험 응시 배너 */}
+          <Link href="/quizzes" className="block w-full rounded-2xl sm:rounded-3xl bg-gradient-to-r from-violet-600 to-fuchsia-600 p-5 sm:p-8 text-white shadow-lg hover:shadow-violet-500/30 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-white opacity-10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg sm:text-2xl font-black mb-1 flex items-center leading-tight break-keep shadow-sm">
+                  <span className="bg-white/20 p-2 rounded-xl mr-3">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </span>
+                  시험 보기 (과목 선택)
                 </h3>
-                <p className="text-emerald-50 text-xs sm:text-base font-medium leading-relaxed opacity-90 break-keep">
-                  더 나은 교육을 위해 귀하의 소중한 의견을 들려주세요.
+                <p className="text-violet-100 text-xs sm:text-sm font-medium leading-relaxed break-keep ml-2 mt-2 sm:mt-0">
+                  관리감독자 역량강화 평가를 지금 시작하세요
                 </p>
               </div>
-              <div className="flex-shrink-0 hidden xs:block">
-                <div className="bg-white/20 rounded-full p-2 sm:p-3 group-hover:bg-white/30 transition-colors shadow-sm">
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </div>
+              <div className="bg-white/20 rounded-full p-3 sm:p-4 group-hover:bg-white/30 group-hover:translate-x-2 transition-all shadow-sm">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
               </div>
             </div>
           </Link>
-        </div>
 
-        <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 mb-8 sm:mb-10 text-center">
-          {quizzes.map((quiz) => (
-            <Link key={quiz.id} href={`/quiz/${quiz.id}`} className="group flex items-center justify-center py-6 sm:py-10 px-4 sm:px-6 bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-500 hover:-translate-y-1 transition-all duration-300">
-              <h3 className="text-xl sm:text-3xl font-black text-slate-800 tracking-tight group-hover:text-indigo-600 transition-colors break-keep">
-                {quiz.title}
-              </h3>
-            </Link>
-          ))}
+          {/* 설문조사 배너 */}
+          <Link href="/survey" className="block w-full rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-500 to-teal-500 p-5 sm:p-8 text-white shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-white opacity-10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg sm:text-2xl font-black mb-1 flex items-center leading-tight break-keep shadow-sm">
+                  <span className="bg-white/20 p-2 rounded-xl mr-3">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                  </span>
+                  교육 만족도 조사
+                </h3>
+                <p className="text-emerald-50 text-xs sm:text-sm font-medium leading-relaxed break-keep ml-2 mt-2 sm:mt-0">
+                  더 나은 교육을 위한 소중한 의견
+                </p>
+              </div>
+              <div className="bg-white/20 rounded-full p-3 sm:p-4 group-hover:bg-white/30 group-hover:translate-x-2 transition-all shadow-sm">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+              </div>
+            </div>
+          </Link>
+
+          {/* 자료실 배너 (구글 드라이브 연동) */}
+          <a 
+            href="https://drive.google.com/drive/folders/1bSqYZAPKSFnT01Atyr-w5YWh1K9wHBQ5" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="block w-full rounded-2xl sm:rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-600 p-5 sm:p-8 text-white shadow-lg hover:shadow-blue-500/30 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group"
+          >
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-48 h-48 bg-white opacity-10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg sm:text-2xl font-black mb-1 flex items-center leading-tight break-keep shadow-sm">
+                  <span className="bg-white/20 p-2 rounded-xl mr-3">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                  </span>
+                  학습 자료실
+                </h3>
+                <p className="text-blue-50 text-xs sm:text-sm font-medium leading-relaxed break-keep ml-2 mt-2 sm:mt-0">
+                  안전보건 교육 자료 및 가이드라인
+                </p>
+              </div>
+              <div className="bg-white/20 rounded-full p-3 sm:p-4 group-hover:bg-white/30 group-hover:translate-x-2 transition-all shadow-sm">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+              </div>
+            </div>
+          </a>
         </div>
 
         <div className="pt-6 sm:pt-8 border-t border-slate-100">

@@ -4,12 +4,14 @@ import { createPool } from '@vercel/postgres';
 import fs from 'fs';
 import path from 'path';
 
-const quizzesPath = path.join(process.cwd(), 'data', 'quizzes.json');
-const resultsPath = path.join(process.cwd(), 'data', 'results.json');
+const dataDir = process.env.DATA_DIR || path.join(process.cwd(), 'data');
+const quizzesPath = path.join(dataDir, 'quizzes.json');
+const resultsPath = path.join(dataDir, 'results.json');
 
 // Neon 통합은 DATABASE_URL을, Vercel 기본은 POSTGRES_URL을 사용합니다.
 const dbUrl = process.env.POSTGRES_URL || process.env.DATABASE_URL;
-const hasDbConfig = !!dbUrl;
+// 로컬 dev.db 등의 설정을 무시하고 실제 Postgres 연결일 때만 DB 모드 활성화하도록 조건 강화
+const hasDbConfig = !!dbUrl && dbUrl.startsWith('postgres');
 
 export async function GET() {
   try {
@@ -46,7 +48,9 @@ export async function GET() {
       if (!fs.existsSync(resultsPath)) return NextResponse.json([]);
       const fileContents = fs.readFileSync(resultsPath, 'utf8');
       const results = JSON.parse(fileContents);
-      return NextResponse.json(results);
+      return NextResponse.json(results, {
+        headers: { 'Cache-Control': 'no-store, max-age=0' }
+      });
     }
   } catch (err) {
     console.error('DB GET Error:', err);
@@ -160,6 +164,8 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const action = searchParams.get('action');
+    
+    console.log(`[DELETE] action=${action}, id=${id}, hasDbConfig=${hasDbConfig}`);
 
     if (hasDbConfig) {
       const db = createPool({ connectionString: dbUrl });
@@ -171,22 +177,41 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ success: true, id });
       }
     } else {
-      if (fs.existsSync(resultsPath)) {
-        if (action === 'reset') {
-          fs.writeFileSync(resultsPath, JSON.stringify([], null, 2), 'utf8');
-          return NextResponse.json({ success: true, message: 'All results deleted' });
-        } else if (id) {
-          const contents = fs.readFileSync(resultsPath, 'utf8');
-          let resultsList = JSON.parse(contents);
-          resultsList = resultsList.filter((r: any) => r.id !== Number(id) && r.id !== id);
-          fs.writeFileSync(resultsPath, JSON.stringify(resultsList, null, 2), 'utf8');
-          return NextResponse.json({ success: true, id });
+      // 로컬 파일 기반 삭제/초기화 (Fallback)
+      if (action === 'reset') {
+        fs.writeFileSync(resultsPath, JSON.stringify([], null, 2), 'utf8');
+        console.log('Local reset success');
+        return NextResponse.json({ success: true, message: 'All results deleted' });
+      } else if (id) {
+        if (!fs.existsSync(resultsPath)) return NextResponse.json({ success: true, id });
+
+        const contents = fs.readFileSync(resultsPath, 'utf8');
+        let resultsList = [];
+        try {
+          resultsList = JSON.parse(contents);
+        } catch (e) {
+          console.error('JSON parse error, resetting results file');
+          resultsList = [];
         }
+
+        const initialLength = resultsList.length;
+        // id가 숫자형 또는 문자열형일 수 있으므로 두 가지 경우 모두 체크
+        resultsList = resultsList.filter((r: any) => String(r.id) !== String(id));
+        
+        fs.writeFileSync(resultsPath, JSON.stringify(resultsList, null, 2), 'utf8');
+        console.log(`Deleted result ${id}. Count: ${initialLength} -> ${resultsList.length}`);
+        return NextResponse.json({ success: true, id });
       }
     }
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   } catch (err) {
-    console.error('DB DELETE Error:', err);
-    return NextResponse.json({ error: 'Failed to delete results' }, { status: 500 });
+    console.error('API DELETE Error:', err);
+    return NextResponse.json({ 
+      error: 'Failed to delete results', 
+      details: err instanceof Error ? err.message : String(err) 
+    }, { 
+      status: 500,
+      headers: { 'Cache-Control': 'no-store, max-age=0' }
+    });
   }
 }
