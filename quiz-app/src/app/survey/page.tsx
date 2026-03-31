@@ -20,14 +20,46 @@ export default function SurveyPage() {
     { id: "c9", name: "관리감독자 역할", desc: "관리감독자의 역할과 책임, 위험성평가 현장 작동성 강화" },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      alert("설문이 성공적으로 제출되었습니다. 소중한 의견 감사드립니다!");
-      router.push("/");
-    }, 1000);
+
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      department: formData.get("department"),
+      surveyDate: formData.get("surveyDate"),
+      ratings: courses.reduce((acc, course) => {
+        acc[course.id] = Number(formData.get(`rating_${course.id}`));
+        return acc;
+      }, {} as Record<string, number>),
+      answers: {
+        q1: formData.get("q1"),
+        q2: formData.get("q2"),
+        q3: formData.get("q3"),
+        q4: formData.get("q4"),
+        q5: formData.get("q5"),
+      },
+    };
+
+    try {
+      const res = await fetch("/api/survey", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (res.ok) {
+        alert("설문이 성공적으로 제출되었습니다. 소중한 의견 감사드립니다!");
+        router.push("/");
+      } else {
+        alert("설문 제출 중 오류가 발생했습니다. 다시 시도해 주세요.");
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
+      alert("통신 오류가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -65,11 +97,11 @@ export default function SurveyPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">부서/직급</label>
-                <input required type="text" placeholder="예: 안전관리부 / 대리" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow" />
+                <input required name="department" type="text" placeholder="예: 안전관리부 / 대리" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">교육 일자</label>
-                <input required type="date" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow" defaultValue="2026-01-01" />
+                <input required name="surveyDate" type="date" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow" defaultValue={new Date().toISOString().split('T')[0]} />
               </div>
             </div>
           </section>
@@ -130,7 +162,7 @@ export default function SurveyPage() {
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                 <p className="font-bold text-slate-800 mb-4 text-lg">Q1. 이번 교육의 구성과 시간 배분(이론 및 체험)은 적절했습니까?</p>
                 <div className="flex flex-wrap gap-4 sm:gap-6">
-                  {['매유 적절', '적절', '보통', '미흡', '매우 미흡'].map((val, idx) => (
+                  {['매우 적절', '적절', '보통', '미흡', '매우 미흡'].map((val, idx) => (
                     <label key={idx} className="flex items-center space-x-2 cursor-pointer">
                       <input required type="radio" name="q1" value={val} className="w-5 h-5 text-emerald-600 focus:ring-emerald-500 border-slate-300" />
                       <span className="text-slate-700 font-medium">{val}</span>
@@ -142,7 +174,7 @@ export default function SurveyPage() {
               {/* Q2 */}
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                 <p className="font-bold text-slate-800 mb-4 text-lg">Q2. 가장 도움이 되었거나 기억에 남는 교육 과정은 무엇입니까? <span className="text-emerald-600 text-sm font-normal">(자유롭게 작성)</span></p>
-                <textarea required rows={3} placeholder="여기에 의견을 작성해 주세요..." className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow resize-none"></textarea>
+                <textarea required name="q2" rows={3} placeholder="여기에 의견을 작성해 주세요..." className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow resize-none"></textarea>
               </div>
 
               {/* Q3 */}
@@ -174,7 +206,7 @@ export default function SurveyPage() {
               {/* Q5 */}
               <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                 <p className="font-bold text-slate-800 mb-4 text-lg">Q5. 향후 교육에 추가되기를 희망하는 주제나 개선사항이 있다면 작성해 주십시오.</p>
-                <textarea required rows={4} placeholder="여기에 자유롭게 의견을 작성해 주세요..." className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow resize-none"></textarea>
+                <textarea required name="q5" rows={4} placeholder="여기에 자유롭게 의견을 작성해 주세요..." className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow resize-none"></textarea>
               </div>
 
             </div>
