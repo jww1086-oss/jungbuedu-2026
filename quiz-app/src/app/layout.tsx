@@ -20,7 +20,7 @@ export default function RootLayout({
         <div className="flex flex-col min-h-screen">
           <header className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
             <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-              <h1 className="text-xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <h1 className="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 KOMIPO 안전교육 플랫폼
               </h1>
               <nav className="space-x-4 text-sm font-medium text-slate-600">

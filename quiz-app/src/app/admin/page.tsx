@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'quiz' | 'survey'>('quiz');
   const [selectedQuizId, setSelectedQuizId] = useState<number | 'all'>('all');
+  const [selectedDate, setSelectedDate] = useState<string | 'all'>('all');
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'result' | 'survey' | 'resetResults' | 'resetSurveys', id?: number | string } | null>(null);
 
   const courses = [
@@ -164,7 +165,20 @@ export default function AdminPage() {
   }
 
   const uniqueQuizIds = Array.from(new Set(results.map(r => r.quizId))).sort((a: any, b: any) => a - b);
-  const filteredResults = selectedQuizId === 'all' ? results : results.filter(r => r.quizId === selectedQuizId);
+  const uniqueDates = Array.from(new Set(results.map(r => new Date(r.createdAt).toLocaleDateString('ko-KR')))).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+  
+  const filteredResults = results.filter(r => {
+    const matchQuiz = selectedQuizId === 'all' || r.quizId === selectedQuizId;
+    const matchDate = selectedDate === 'all' || new Date(r.createdAt).toLocaleDateString('ko-KR') === selectedDate;
+    return matchQuiz && matchDate;
+  }).sort((a, b) => {
+    const ratioA = a.score / a.total;
+    const ratioB = b.score / b.total;
+    if (ratioB !== ratioA) {
+      return ratioB - ratioA; // 점수 높은 순 (내림차순)
+    }
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // 동점일 경우 최신순
+  });
 
   // 만족도 조사 통계 계산
   const surveyStats = courses.map(course => {
@@ -198,43 +212,61 @@ export default function AdminPage() {
 
       {activeTab === 'quiz' ? (
         <>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex gap-4">
-              <div className="bg-white flex items-center px-4 py-2 rounded-xl border shadow-sm">
-                <label className="text-sm font-semibold text-slate-600 mr-3">과목 필터</label>
+          {/* 필터 및 초기화 바 (모바일에서 세로로 깨지지 않도록 반응형 적용) */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto flex-1">
+              <div className="bg-white flex items-center justify-between sm:justify-start px-4 py-2.5 rounded-xl border shadow-sm flex-1">
+                <label className="text-sm font-bold text-slate-600 mr-3 whitespace-nowrap">과목 필터</label>
                 <select 
-                  className="bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-lg focus:ring-indigo-500 py-1.5 px-3 font-medium outline-none cursor-pointer"
+                  className="bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-lg focus:ring-indigo-500 py-1.5 px-3 font-semibold outline-none cursor-pointer flex-1 sm:flex-none w-full sm:w-auto"
                   value={selectedQuizId}
                   onChange={(e) => setSelectedQuizId(e.target.value === 'all' ? 'all' : Number(e.target.value))}
                 >
                   <option value="all">전체 과목 보기</option>
                   {uniqueQuizIds.map(id => (
-                    <option key={id} value={id}>과목 {id} 결과만</option>
+                    <option key={id} value={id}>과목 {id}</option>
                   ))}
                 </select>
               </div>
+              <div className="bg-white flex items-center justify-between sm:justify-start px-4 py-2.5 rounded-xl border shadow-sm flex-1">
+                <label className="text-sm font-bold text-slate-600 mr-3 whitespace-nowrap">일자 필터</label>
+                <select 
+                  className="bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-lg focus:ring-indigo-500 py-1.5 px-3 font-semibold outline-none cursor-pointer flex-1 sm:flex-none w-full sm:w-auto"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                >
+                  <option value="all">전체 일자 보기</option>
+                  {uniqueDates.map(date => (
+                    <option key={date} value={date}>{date}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 w-full sm:w-auto">
               <button 
                 onClick={handleResetResults}
-                className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-4 py-2 rounded-xl border border-red-100 text-sm font-bold transition-colors"
+                className="flex-[1.2] sm:flex-none bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 px-3 sm:px-5 py-2.5 rounded-xl border border-red-100 text-sm font-black transition-colors whitespace-nowrap shadow-sm text-center"
               >
-                결과 초기화
+                초기화
               </button>
-            </div>
-            <div className="bg-indigo-600 px-6 py-2 rounded-xl text-white font-bold shadow-lg shadow-indigo-200">
-              총 {filteredResults.length}건
+              <div className="flex-1 sm:flex-none bg-indigo-600 px-3 sm:px-5 py-2.5 rounded-xl text-white font-black shadow-md shadow-indigo-200 whitespace-nowrap text-center text-sm">
+                총 {filteredResults.length}건
+              </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          {/* 데스크탑 뷰 - 테이블 형식 */}
+          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-sm font-semibold text-slate-600">
                     <th className="px-6 py-4">응시 과목</th>
                     <th className="px-6 py-4">응시자 이름</th>
                     <th className="px-6 py-4">최종 점수</th>
                     <th className="px-6 py-4">정답 수</th>
-                    <th className="px-6 py-4">제출 일시</th>
+                    <th className="px-6 py-4">제출 일자</th>
                     <th className="px-6 py-4 text-center">관리</th>
                   </tr>
                 </thead>
@@ -257,7 +289,7 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-slate-600 text-sm">{r.score} / {r.total} 문항</td>
-                        <td className="px-6 py-4 text-slate-500 text-sm">{new Date(r.createdAt).toLocaleString('ko-KR')}</td>
+                        <td className="px-6 py-4 text-slate-500 text-sm">{new Date(r.createdAt).toLocaleDateString('ko-KR')}</td>
                         <td className="px-6 py-4 text-center">
                           <button onClick={() => handleDeleteResult(r.id)} className="text-red-500 hover:text-red-700 text-sm font-semibold px-3 py-1 bg-red-50 rounded-lg transition-colors border border-red-100">삭제</button>
                         </td>
@@ -267,6 +299,52 @@ export default function AdminPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* 모바일 뷰 - 카드 형식 */}
+          <div className="md:hidden space-y-4">
+            {loading ? (
+              <div className="bg-white p-6 rounded-2xl text-center text-slate-400 border border-slate-200 shadow-sm animate-pulse">데이터를 불러오는 중...</div>
+            ) : filteredResults.length === 0 ? (
+              <div className="bg-white p-6 rounded-2xl text-center text-slate-400 border border-slate-200 shadow-sm">데이터가 없습니다.</div>
+            ) : (
+              filteredResults.map((r) => (
+                <div key={r.id} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-3 relative">
+                  <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2">
+                       <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 font-bold text-[11px] rounded-lg border border-indigo-100/50">과목 {r.quizId}</span>
+                       <span className="font-extrabold text-slate-900 text-base">{r.studentName}</span>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-[11px] font-black tracking-wide ${
+                      (r.score / r.total) >= 0.8 ? 'bg-green-100 text-green-700 border border-green-200/50' :
+                      (r.score / r.total) >= 0.6 ? 'bg-yellow-100 text-yellow-700 border border-yellow-200/50' : 'bg-red-100 text-red-700 border border-red-200/50'
+                    }`}>
+                      {Math.round((r.score / r.total) * 100)}점
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2 pt-1">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500 font-medium text-xs">정답 수</span>
+                      <span className="font-bold text-slate-700">{r.score} <span className="text-slate-400 font-normal">/ {r.total} 문항</span></span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500 font-medium text-xs">제출 일자</span>
+                      <span className="font-medium text-slate-600 text-[13px]">{new Date(r.createdAt).toLocaleDateString('ko-KR')}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 pt-3 border-t border-slate-100 flex justify-end">
+                    <button 
+                      onClick={() => handleDeleteResult(r.id)} 
+                      className="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-4 py-1.5 rounded-lg text-xs font-bold transition-colors border border-red-100"
+                    >
+                      기록 삭제
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </>
       ) : (
@@ -314,9 +392,14 @@ export default function AdminPage() {
 
           {/* 설문 상세 목록 */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <h3 className="p-6 border-b border-slate-100 text-lg font-bold text-slate-800">교육생 개별 의견 및 답변</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+            <h3 className="p-6 border-b border-slate-100 text-lg sm:text-xl font-bold text-slate-800 flex items-center justify-between">
+              교육생 개별 의견 및 답변
+              <span className="text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">{surveys.length}건</span>
+            </h3>
+            
+            {/* 데스크탑 뷰 - 테이블 형식 */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse whitespace-nowrap">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-sm font-semibold text-slate-600">
                     <th className="px-6 py-4">부서/직급</th>
@@ -334,18 +417,56 @@ export default function AdminPage() {
                   ) : (
                     surveys.map((s) => (
                       <tr key={s.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-slate-900">{s.department}</td>
+                        <td className="px-6 py-4 font-bold text-slate-900">{s.department}</td>
                         <td className="px-6 py-4 text-slate-600 text-sm max-w-xs truncate">{s.answers?.q2 || '-'}</td>
                         <td className="px-6 py-4 text-slate-600 text-sm max-w-xs truncate">{s.answers?.q5 || '-'}</td>
                         <td className="px-6 py-4 text-slate-500 text-sm">{new Date(s.createdAt).toLocaleDateString('ko-KR')}</td>
                         <td className="px-6 py-4 text-center">
-                          <button onClick={() => handleDeleteSurvey(s.id)} className="text-red-400 hover:text-red-600 text-xs font-bold uppercase">삭제</button>
+                          <button onClick={() => handleDeleteSurvey(s.id)} className="text-red-500 hover:text-red-700 text-sm font-semibold px-3 py-1 bg-red-50 rounded-lg transition-colors border border-red-100">삭제</button>
                         </td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* 모바일 뷰 - 카드 형식 */}
+            <div className="md:hidden p-4 space-y-4 bg-slate-50/50">
+              {loading ? (
+                <div className="text-center text-slate-400 py-8 animate-pulse">불러오는 중...</div>
+              ) : surveys.length === 0 ? (
+                <div className="text-center text-slate-400 py-8">제출된 설문이 없습니다.</div>
+              ) : (
+                surveys.map((s) => (
+                  <div key={s.id} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-4 relative">
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                      <span className="font-extrabold text-slate-900 text-base">{s.department}</span>
+                      <span className="text-xs font-semibold text-slate-400">{new Date(s.createdAt).toLocaleDateString('ko-KR')}</span>
+                    </div>
+                    
+                    <div className="flex flex-col gap-3">
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <p className="text-[11px] font-bold text-indigo-600 mb-1">기억에 남는 과정 (Q2)</p>
+                        <p className="text-sm text-slate-700 leading-relaxed">{s.answers?.q2 || <span className="text-slate-400 italic">미응답</span>}</p>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <p className="text-[11px] font-bold text-teal-600 mb-1">개선 및 보완사항 (Q5)</p>
+                        <p className="text-sm text-slate-700 leading-relaxed">{s.answers?.q5 || <span className="text-slate-400 italic">미응답</span>}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 pt-3 border-t border-slate-100 flex justify-end">
+                      <button 
+                        onClick={() => handleDeleteSurvey(s.id)} 
+                        className="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-4 py-1.5 rounded-lg text-xs font-bold transition-colors border border-red-100"
+                      >
+                        설문 삭제
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </>
