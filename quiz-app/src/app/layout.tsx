@@ -20,9 +20,12 @@ export default function RootLayout({
         <div className="flex flex-col min-h-screen">
           <header className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 print:hidden">
             <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-              <h1 className="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                KOMIPO 안전교육 플랫폼
-              </h1>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <img src="/komipo-logo.png" alt="한국중부발전" className="h-8 sm:h-10 w-auto object-contain" />
+                <h1 className="text-lg sm:text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  안전교육 플랫폼
+                </h1>
+              </div>
               <nav className="space-x-4 text-sm font-medium text-slate-600">
                 <a href="/" className="hover:text-blue-600 transition-colors">홈</a>
                 <a href="/admin" className="hover:text-blue-600 transition-colors">관리자 모드</a>
