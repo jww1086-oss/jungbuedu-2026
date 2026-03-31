@@ -61,10 +61,10 @@ export default function HomePageClient({ quizzes }: { quizzes: Quiz[] }) {
               </div>
               <div>
                 <h3 className="text-xl sm:text-2xl font-black mb-1 leading-tight tracking-tight drop-shadow-sm">
-                  교육 만족도 조사
+                  설문조사
                 </h3>
                 <p className="text-emerald-50/90 text-[13px] sm:text-sm font-medium leading-relaxed mt-1">
-                  더 나은 교육을 위한 소중한 의견
+                  교육 만족도 및 현업적용도 평가 참여
                 </p>
               </div>
             </div>
