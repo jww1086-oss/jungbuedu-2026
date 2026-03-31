@@ -18,7 +18,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className={`${inter.className} bg-slate-50 text-slate-900 antialiased`}>
         <div className="flex flex-col min-h-screen">
-          <header className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
+          <header className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50 print:hidden">
             <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
               <h1 className="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 KOMIPO 안전교육 플랫폼
