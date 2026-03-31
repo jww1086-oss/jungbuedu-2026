@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     const { studentName: rawName, quizId, answers } = body;
     const studentName = rawName.trim();
 
-    // 퀴즈 정답 검증 로직
+    // 시험 정답 검증 로직
     const quizContents = fs.readFileSync(quizzesPath, 'utf8');
     const quizzes = JSON.parse(quizContents);
     const quiz = quizzes.find((q: any) => q.id === Number(quizId));

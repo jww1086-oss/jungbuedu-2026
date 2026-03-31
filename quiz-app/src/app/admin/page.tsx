@@ -157,7 +157,7 @@ export default function AdminPage() {
             onClick={() => setActiveTab('quiz')}
             className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${activeTab === 'quiz' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:text-slate-700'}`}
           >
-            퀴즈 응시 결과
+            시험 응시 결과
           </button>
           <button 
             onClick={() => setActiveTab('survey')}

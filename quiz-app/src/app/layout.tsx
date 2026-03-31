@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "안티그래비티 퀴즈 플랫폼",
-  description: "안전보건교육 퀴즈 및 평가 시스템",
+  title: "안티그래비티 시험 플랫폼",
+  description: "안전보건교육 시험 및 평가 시스템",
 };
 
 export default function RootLayout({
