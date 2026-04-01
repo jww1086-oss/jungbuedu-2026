@@ -1,36 +1,118 @@
 [
   {
-    "id": 1774928262117,
-    "studentName": "wjd",
+    "id": 1775003236645,
+    "studentName": "한국",
     "quizId": 1,
-    "score": 1,
+    "session": 1,
+    "score": 6,
     "total": 10,
     "details": [
       {
         "questionId": 101,
         "isCorrect": false,
-        "selectedAnswer": 1,
+        "selectedAnswer": 0,
         "correctAnswer": 2,
         "explanation": "신규 양식 내에는 '관리감독자' 표기가 의무화되었습니다."
       },
       {
         "questionId": 102,
-        "isCorrect": false,
-        "selectedAnswer": 2,
+        "isCorrect": true,
+        "selectedAnswer": 1,
         "correctAnswer": 1,
         "explanation": "자가 결재 오류 방지를 위해 작성자와 검토자는 동일인 지정이 절대 불가합니다."
       },
       {
         "questionId": 103,
         "isCorrect": false,
-        "selectedAnswer": 3,
+        "selectedAnswer": 0,
         "correctAnswer": 2,
         "explanation": "형식적인 평가를 방지하기 위해 중부발전 감독자가 직접 입회하여 참여해야 합니다."
       },
       {
         "questionId": 104,
         "isCorrect": false,
+        "selectedAnswer": 1,
+        "correctAnswer": 2,
+        "explanation": "단계별 누락을 차단하기 위해 SOP에 명시된 상세 작업 순서를 기준으로 분할합니다."
+      },
+      {
+        "questionId": 105,
+        "isCorrect": true,
+        "selectedAnswer": 1,
+        "correctAnswer": 1,
+        "explanation": "초기 기준 설정의 핵심으로, 현재 설치된 안전조치의 유효성 및 작동 여부를 먼저 확인해야 합니다."
+      },
+      {
+        "questionId": 106,
+        "isCorrect": true,
+        "selectedAnswer": 3,
+        "correctAnswer": 3,
+        "explanation": "중대재해 예방을 위한 절대 기준으로 최소 4점 이상을 부여해야 합니다."
+      },
+      {
+        "questionId": 107,
+        "isCorrect": true,
+        "selectedAnswer": 1,
+        "correctAnswer": 1,
+        "explanation": "단순 복사를 금지하고, 현장 특성에 맞게 재해석하여 맞춤형 대책으로 변환해야 합니다."
+      },
+      {
+        "questionId": 108,
+        "isCorrect": true,
+        "selectedAnswer": 2,
+        "correctAnswer": 2,
+        "explanation": "방호장치, 자동화 등 설비 본질 안전화와 같은 근원적/공학적 대책이 최우선 수립되어야 합니다."
+      },
+      {
+        "questionId": 109,
+        "isCorrect": true,
+        "selectedAnswer": 1,
+        "correctAnswer": 1,
+        "explanation": "위험성이 실제 수치상으로 감소할 때까지 추가 대책을 재수립해야 합니다."
+      },
+      {
+        "questionId": 110,
+        "isCorrect": false,
+        "selectedAnswer": 1,
+        "correctAnswer": 2,
+        "explanation": "누가, 언제, 예산 등을 포함한 개선실행계획 작성이 필수적으로 의무화됩니다."
+      }
+    ],
+    "createdAt": "2026-04-01T00:27:16.645Z"
+  },
+  {
+    "id": 1775003264925,
+    "studentName": "중부",
+    "quizId": 1,
+    "session": 1,
+    "score": 4,
+    "total": 10,
+    "details": [
+      {
+        "questionId": 101,
+        "isCorrect": false,
         "selectedAnswer": 0,
+        "correctAnswer": 2,
+        "explanation": "신규 양식 내에는 '관리감독자' 표기가 의무화되었습니다."
+      },
+      {
+        "questionId": 102,
+        "isCorrect": false,
+        "selectedAnswer": 3,
+        "correctAnswer": 1,
+        "explanation": "자가 결재 오류 방지를 위해 작성자와 검토자는 동일인 지정이 절대 불가합니다."
+      },
+      {
+        "questionId": 103,
+        "isCorrect": false,
+        "selectedAnswer": 1,
+        "correctAnswer": 2,
+        "explanation": "형식적인 평가를 방지하기 위해 중부발전 감독자가 직접 입회하여 참여해야 합니다."
+      },
+      {
+        "questionId": 104,
+        "isCorrect": false,
+        "selectedAnswer": 3,
         "correctAnswer": 2,
         "explanation": "단계별 누락을 차단하기 위해 SOP에 명시된 상세 작업 순서를 기준으로 분할합니다."
       },
@@ -43,8 +125,8 @@
       },
       {
         "questionId": 106,
-        "isCorrect": false,
-        "selectedAnswer": 1,
+        "isCorrect": true,
+        "selectedAnswer": 3,
         "correctAnswer": 3,
         "explanation": "중대재해 예방을 위한 절대 기준으로 최소 4점 이상을 부여해야 합니다."
       },
@@ -58,25 +140,106 @@
       {
         "questionId": 108,
         "isCorrect": false,
-        "selectedAnswer": 1,
+        "selectedAnswer": 3,
         "correctAnswer": 2,
         "explanation": "방호장치, 자동화 등 설비 본질 안전화와 같은 근원적/공학적 대책이 최우선 수립되어야 합니다."
       },
       {
         "questionId": 109,
-        "isCorrect": false,
-        "selectedAnswer": 0,
+        "isCorrect": true,
+        "selectedAnswer": 1,
         "correctAnswer": 1,
         "explanation": "위험성이 실제 수치상으로 감소할 때까지 추가 대책을 재수립해야 합니다."
       },
       {
         "questionId": 110,
-        "isCorrect": false,
-        "selectedAnswer": 0,
+        "isCorrect": true,
+        "selectedAnswer": 2,
         "correctAnswer": 2,
         "explanation": "누가, 언제, 예산 등을 포함한 개선실행계획 작성이 필수적으로 의무화됩니다."
       }
     ],
-    "createdAt": "2026-03-31T03:37:42.117Z"
+    "createdAt": "2026-04-01T00:27:44.925Z"
+  },
+  {
+    "id": 1775003287990,
+    "studentName": "발전",
+    "quizId": 1,
+    "session": 1,
+    "score": 6,
+    "total": 10,
+    "details": [
+      {
+        "questionId": 101,
+        "isCorrect": false,
+        "selectedAnswer": 0,
+        "correctAnswer": 2,
+        "explanation": "신규 양식 내에는 '관리감독자' 표기가 의무화되었습니다."
+      },
+      {
+        "questionId": 102,
+        "isCorrect": false,
+        "selectedAnswer": 0,
+        "correctAnswer": 1,
+        "explanation": "자가 결재 오류 방지를 위해 작성자와 검토자는 동일인 지정이 절대 불가합니다."
+      },
+      {
+        "questionId": 103,
+        "isCorrect": false,
+        "selectedAnswer": 0,
+        "correctAnswer": 2,
+        "explanation": "형식적인 평가를 방지하기 위해 중부발전 감독자가 직접 입회하여 참여해야 합니다."
+      },
+      {
+        "questionId": 104,
+        "isCorrect": false,
+        "selectedAnswer": 1,
+        "correctAnswer": 2,
+        "explanation": "단계별 누락을 차단하기 위해 SOP에 명시된 상세 작업 순서를 기준으로 분할합니다."
+      },
+      {
+        "questionId": 105,
+        "isCorrect": true,
+        "selectedAnswer": 1,
+        "correctAnswer": 1,
+        "explanation": "초기 기준 설정의 핵심으로, 현재 설치된 안전조치의 유효성 및 작동 여부를 먼저 확인해야 합니다."
+      },
+      {
+        "questionId": 106,
+        "isCorrect": true,
+        "selectedAnswer": 3,
+        "correctAnswer": 3,
+        "explanation": "중대재해 예방을 위한 절대 기준으로 최소 4점 이상을 부여해야 합니다."
+      },
+      {
+        "questionId": 107,
+        "isCorrect": true,
+        "selectedAnswer": 1,
+        "correctAnswer": 1,
+        "explanation": "단순 복사를 금지하고, 현장 특성에 맞게 재해석하여 맞춤형 대책으로 변환해야 합니다."
+      },
+      {
+        "questionId": 108,
+        "isCorrect": true,
+        "selectedAnswer": 2,
+        "correctAnswer": 2,
+        "explanation": "방호장치, 자동화 등 설비 본질 안전화와 같은 근원적/공학적 대책이 최우선 수립되어야 합니다."
+      },
+      {
+        "questionId": 109,
+        "isCorrect": true,
+        "selectedAnswer": 1,
+        "correctAnswer": 1,
+        "explanation": "위험성이 실제 수치상으로 감소할 때까지 추가 대책을 재수립해야 합니다."
+      },
+      {
+        "questionId": 110,
+        "isCorrect": true,
+        "selectedAnswer": 2,
+        "correctAnswer": 2,
+        "explanation": "누가, 언제, 예산 등을 포함한 개선실행계획 작성이 필수적으로 의무화됩니다."
+      }
+    ],
+    "createdAt": "2026-04-01T00:28:07.990Z"
   }
 ]

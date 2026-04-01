@@ -10,6 +10,7 @@ export default function QuizPage() {
 
   const [quiz, setQuiz] = useState<any>(null);
   const [studentName, setStudentName] = useState('');
+  const [session, setSession] = useState('1');
   const [answers, setAnswers] = useState<number[]>([]);
   const [step, setStep] = useState<'intro' | 'quiz' | 'result'>('intro');
   const [resultData, setResultData] = useState<any>(null);
@@ -31,6 +32,11 @@ export default function QuizPage() {
   const handleStart = () => {
     if (!studentName.trim()) {
       setError('이름을 입력해주세요.');
+      return;
+    }
+    const sessionNum = Number(session);
+    if (isNaN(sessionNum) || sessionNum < 1 || sessionNum > 17) {
+      setError('회차는 1에서 17 사이의 숫자여야 합니다.');
       return;
     }
     setError('');
@@ -58,6 +64,7 @@ export default function QuizPage() {
         body: JSON.stringify({
           studentName,
           quizId: quiz.id,
+          session: Number(session),
           answers
         })
       });
@@ -92,6 +99,17 @@ export default function QuizPage() {
                 value={studentName}
                 onChange={(e) => setStudentName(e.target.value)}
                 placeholder="홍길동"
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">회차 (1~17)</label>
+              <input 
+                type="number" 
+                min="1"
+                max="17"
+                value={session}
+                onChange={(e) => setSession(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
               />
               {error && <p className="text-red-500 text-sm mt-1">{error}</p>}

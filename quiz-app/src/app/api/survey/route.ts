@@ -20,6 +20,7 @@ export async function GET() {
           id SERIAL PRIMARY KEY,
           department VARCHAR(255),
           survey_date VARCHAR(50),
+          session INTEGER,
           ratings JSONB,
           answers JSONB,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -30,6 +31,7 @@ export async function GET() {
           id, 
           department, 
           survey_date as "surveyDate", 
+          session,
           ratings, 
           answers, 
           created_at as "createdAt" 
@@ -54,7 +56,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { department, surveyDate, ratings, answers } = body;
+    const { department, surveyDate, session, ratings, answers } = body;
 
     if (hasDbConfig) {
       const db = createPool({ connectionString: dbUrl });
@@ -64,6 +66,7 @@ export async function POST(request: Request) {
           id SERIAL PRIMARY KEY,
           department VARCHAR(255),
           survey_date VARCHAR(50),
+          session INTEGER,
           ratings JSONB,
           answers JSONB,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -74,8 +77,8 @@ export async function POST(request: Request) {
       const answersJson = JSON.stringify(answers);
       
       await db.sql`
-        INSERT INTO surveys (department, survey_date, ratings, answers)
-        VALUES (${department}, ${surveyDate}, ${ratingsJson}::jsonb, ${answersJson}::jsonb)
+        INSERT INTO surveys (department, survey_date, session, ratings, answers)
+        VALUES (${department}, ${surveyDate}, ${session}, ${ratingsJson}::jsonb, ${answersJson}::jsonb)
       `;
       return NextResponse.json({ success: true });
     } else {
@@ -91,6 +94,7 @@ export async function POST(request: Request) {
         id: Date.now(),
         department,
         surveyDate,
+        session: Number(session),
         ratings,
         answers,
         createdAt: new Date().toISOString()

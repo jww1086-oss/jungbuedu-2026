@@ -23,6 +23,7 @@ export async function GET() {
           id SERIAL PRIMARY KEY,
           quiz_id INTEGER,
           student_name VARCHAR(255),
+          session INTEGER,
           score INTEGER,
           total INTEGER,
           details JSONB,
@@ -35,6 +36,7 @@ export async function GET() {
           id, 
           quiz_id as "quizId", 
           student_name as "studentName", 
+          session,
           score, 
           total, 
           details, 
@@ -61,7 +63,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { studentName: rawName, quizId, answers } = body;
+    const { studentName: rawName, quizId, answers, session } = body;
     const studentName = rawName.trim();
 
     // 시험 정답 검증 로직
@@ -106,21 +108,22 @@ export async function POST(request: Request) {
       // 중복 응시 방지 체크
       const { rowCount } = await db.sql`
         SELECT 1 FROM results 
-        WHERE quiz_id = ${quizId} AND student_name = ${studentName}
+        WHERE quiz_id = ${quizId} AND student_name = ${studentName} AND session = ${session}
       `;
       if (rowCount && rowCount > 0) {
-        return NextResponse.json({ error: '이미 해당 과목의 평가를 완료하셨습니다. (중복 제출 불가)' }, { status: 400 });
+        return NextResponse.json({ error: '이미 이번 회차의 해당 과목 평가를 완료하셨습니다.' }, { status: 400 });
       }
 
       // Vercel Postgres에 Insert
       const detailsJson = JSON.stringify(details);
       await db.sql`
-        INSERT INTO results (quiz_id, student_name, score, total, details)
-        VALUES (${quizId}, ${studentName}, ${score}, ${total}, ${detailsJson}::jsonb)
+        INSERT INTO results (quiz_id, student_name, session, score, total, details)
+        VALUES (${quizId}, ${studentName}, ${session}, ${score}, ${total}, ${detailsJson}::jsonb)
       `;
       return NextResponse.json({ 
         success: true, 
         studentName, 
+        session,
         score, 
         total, 
         details 
@@ -133,15 +136,20 @@ export async function POST(request: Request) {
       }
       
       // 중복 응시 방지 체크
-      const isDuplicate = results.some((r: any) => String(r.quizId) === String(quizId) && r.studentName === studentName);
+      const isDuplicate = results.some((r: any) => 
+        String(r.quizId) === String(quizId) && 
+        r.studentName === studentName && 
+        Number(r.session) === Number(session)
+      );
       if (isDuplicate) {
-        return NextResponse.json({ error: '이미 해당 과목의 평가를 완료하셨습니다. (중복 제출 불가)' }, { status: 400 });
+        return NextResponse.json({ error: '이미 이번 회차의 해당 과목 평가를 완료하셨습니다.' }, { status: 400 });
       }
       
       const newResult = {
         id: Date.now(),
         studentName,
         quizId,
+        session: Number(session),
         score,
         total,
         details,

@@ -27,7 +27,8 @@ export default function SurveyPage() {
     const formData = new FormData(e.currentTarget);
     const data = {
       department: formData.get("department"),
-      surveyDate: formData.get("surveyDate"),
+      surveyDate: new Date().toISOString().split('T')[0], // Internal date for backup
+      session: formData.get("session"),
       ratings: courses.reduce((acc, course) => {
         acc[course.id] = Number(formData.get(`rating_${course.id}`));
         return acc;
@@ -100,8 +101,17 @@ export default function SurveyPage() {
                 <input required name="department" type="text" placeholder="예: 안전관리부 / 대리" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">교육 일자</label>
-                <input required name="surveyDate" type="date" className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow" defaultValue={new Date().toISOString().split('T')[0]} />
+                <label className="block text-sm font-semibold text-slate-700 mb-2">교육 회차</label>
+                <select 
+                  required 
+                  name="session" 
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-shadow bg-white cursor-pointer"
+                >
+                  <option value="">회차 선택</option>
+                  {Array.from({ length: 17 }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>{i + 1}차</option>
+                  ))}
+                </select>
               </div>
             </div>
           </section>
