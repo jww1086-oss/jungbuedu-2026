@@ -104,14 +104,15 @@ export default function QuizPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">회차 (1~17)</label>
-              <input 
-                type="number" 
-                min="1"
-                max="17"
+              <select 
                 value={session}
                 onChange={(e) => setSession(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-              />
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 bg-white cursor-pointer"
+              >
+                {Array.from({ length: 17 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>{i + 1}차</option>
+                ))}
+              </select>
               {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
             </div>
             <button 
