@@ -98,12 +98,20 @@ export async function POST(request: Request) {
           id SERIAL PRIMARY KEY,
           quiz_id INTEGER,
           student_name VARCHAR(255),
+          session INTEGER,
           score INTEGER,
           total INTEGER,
           details JSONB,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
       `;
+
+      // 기존 테이블에 session 컬럼이 없을 경우를 대비하여 추가 시도 (Safe migration)
+      try {
+        await db.sql`ALTER TABLE results ADD COLUMN IF NOT EXISTS session INTEGER;`;
+      } catch (e) {
+        console.log('Session column might already exist or migration error:', e);
+      }
 
       // 중복 응시 방지 체크
       const { rowCount } = await db.sql`
@@ -163,7 +171,13 @@ export async function POST(request: Request) {
     }
   } catch (err) {
     console.error('DB POST Error:', err);
-    return NextResponse.json({ error: 'Failed to save result' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to save result',
+      details: err instanceof Error ? err.message : String(err)
+    }, { 
+      status: 500,
+      headers: { 'Cache-Control': 'no-store, max-age=0' }
+    });
   }
 }
 
